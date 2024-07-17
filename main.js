@@ -1,47 +1,60 @@
 let counter = 0;
 
-var board = [
-  ['_','_','_'],
-  ['_','_','_'],
-  ['_','_','_'],
-]
+let board;
+startGame();
+function startGame()
+{
 
-Array.from(document.getElementsByClassName("box")).forEach(function (item) {
-  item.addEventListener("click", function functionToRemove() {
-    let type = counter % 2 == 0 ? "circle" : "cross"
-    addImage(item, type);
-    this.removeEventListener("click", functionToRemove);
-    winner = checkWinner(type);
+  board = [
+  ['_','_','_'],
+  ['_','_','_'],
+  ['_','_','_']];
+  counter = 0;
+  Array.from(document.getElementsByClassName("box")).forEach(function (box) {
+    box.addEventListener("click", function() { Play(box); });
   });
-});
+}
+
+function Play(box)
+{
+    let type = counter % 2 == 0 ? "circle" : "cross"
+    if (CanPlayHere(box.id))
+    {
+      addImage(box, type);
+      this.removeEventListener("click", Play(box));
+      winner = checkWinner(type);
+    }
+}
+
+function CanPlayHere(id)
+{
+  var ids = GetIndexTabByBoxId(id);
+  if (board[ids[0]][ids[1]] == '_')
+    return true;
+  return false;
+}
 
 
 //RESET
-// var resetButton = document.getElementById('reset');
-// resetButton.addEventListener("click", function (item) {
-//   Array.from(document.getElementsByClassName("box")).forEach(function (item) {
-//     if (item.childNodes[0] != null)
-//       {
-//         item.removeChild(item.childNodes[0])
-//       }
-//   });
-//   startGame();
-// });
-
-// function play()
-// {
-//   let type = counter % 2 == 0 ? "circle" : "cross"
-//       addImage(item, type);
-//       this.removeEventListener("click", functionToRemove);
-//       winner = checkWinner(type);
-// }
-
-
-
+var resetButton = document.getElementById('reset');
+resetButton.addEventListener("click", function (item) {
+  Array.from(document.getElementsByClassName("box")).forEach(function (item) {
+    if (item.childNodes[0] != null)
+      {
+        console.log(item);
+        item.removeChild(item.childNodes[0])
+      }
+      item.removeEventListener(item,Play(item));
+  });
+  startGame();
+  displayBoard()
+  
+});
   
 function addImage(box, type) {
   var boxNumber = box.id;
   updateBoard(boxNumber, type)
+  displayBoard();
   let img = document.createElement("img");
   img.src = "images/" + type + ".png";
   img.width = 100;
@@ -55,7 +68,6 @@ function updateBoard(id, type)
   var value = GetCharInBoardFromType(type);
   let ids = GetIndexTabByBoxId(id);
   board[ids[0]][ids[1]] = value;
-  console.log(board)
 }
 
 function GetCharInBoardFromType(type)
@@ -77,22 +89,22 @@ function checkWinner(type) {
   let winnerDiagonals = checkWinnerDiagonals(type)
   if (winnerRows || winnerColumns || winnerDiagonals)
     DeclareWinner(type); 
-  // let gameEnded = checkGameEnded();
-  // if (gameEnded)
-  //   DeclareWinner(type);
+  let gameEnded = checkGameEnded();
+  if (gameEnded)
+    DeclareGameEnded();
 }
 
-function checkGameEnded()
-{
-  board.forEach(tab => {
-    tab.forEach(value => {
-      if (value != '_')
-        return false
-    });
-  });
-
+function checkGameEnded() {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+      if (board[i][j] === '_') {
+        return false;
+      }
+    }
+  }
   return true;
 }
+
 
 ///
 function checkWinnerRows(type) {
@@ -134,5 +146,18 @@ function DeclareWinner(type)
 }
 function DeclareGameEnded()
 {
+  
   alert("Fin de partie...")
+}
+
+function displayBoard()
+{
+  console.log("counter : " + counter)
+  console.log("88888888888888888")
+  console.log("BOARD")
+  console.log(board[0][0] + ' ' + board[0][1] + ' ' + board[0][2]);
+  console.log('-----');
+  console.log(board[1][0] + ' ' + board[1][1] + ' ' + board[1][2]);
+  console.log('-----');
+  console.log(board[2][0] + ' ' + board[2][1] + ' ' + board[2][2]);
 }
