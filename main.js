@@ -1,14 +1,21 @@
 let counter = 0;
 
 let board;
+
+//RESET
+var resetButton = document.getElementById('reset');
+resetButton.addEventListener("click", function() { Reset();});
+
 startGame();
+
+
 function startGame()
 {
-
   board = [
-  ['_','_','_'],
-  ['_','_','_'],
-  ['_','_','_']];
+    ['_','_','_'],
+    ['_','_','_'],
+    ['_','_','_']
+  ];
   counter = 0;
   Array.from(document.getElementsByClassName("box")).forEach(function (box) {
     box.addEventListener("click", function() { Play(box); });
@@ -21,8 +28,10 @@ function Play(box)
     if (CanPlayHere(box.id))
     {
       addImage(box, type);
+      console.log("image added");
       this.removeEventListener("click", Play(box));
       winner = checkWinner(type);
+      counter++;
     }
 }
 
@@ -34,33 +43,27 @@ function CanPlayHere(id)
   return false;
 }
 
-
-//RESET
-var resetButton = document.getElementById('reset');
-resetButton.addEventListener("click", function (item) {
+function Reset()
+{
   Array.from(document.getElementsByClassName("box")).forEach(function (item) {
     if (item.childNodes[0] != null)
       {
-        console.log(item);
         item.removeChild(item.childNodes[0])
       }
-      item.removeEventListener(item,Play(item));
-  });
-  startGame();
-  displayBoard()
-  
-});
+      item.removeEventListener(item,Play);
+    });
+    startGame();
+    displayBoard()
+}
   
 function addImage(box, type) {
   var boxNumber = box.id;
   updateBoard(boxNumber, type)
-  displayBoard();
   let img = document.createElement("img");
   img.src = "images/" + type + ".png";
   img.width = 100;
   img.height = 100;
   box.appendChild(img);
-  counter++;
 }
 
 function updateBoard(id, type)
@@ -79,8 +82,6 @@ function GetIndexTabByBoxId(id)
 {
   return [Math.floor((id - 1) / 3), (id - 1) % 3]
 }
-
-/*CLEAR BOARD */
 
 /*CHECK WINNERS*/
 function checkWinner(type) {
@@ -105,7 +106,6 @@ function checkGameEnded() {
   return true;
 }
 
-
 ///
 function checkWinnerRows(type) {
   let potentialWinningChar = GetCharInBoardFromType(type);
@@ -128,7 +128,6 @@ function checkWinnerColumns(type) {
   return false;
 }
 
-
 function checkWinnerDiagonals(type)
 {
   let potentialWinningChar = GetCharInBoardFromType(type);
@@ -138,26 +137,29 @@ function checkWinnerDiagonals(type)
   
 }
 
-
-
 function DeclareWinner(type)
 {
-  alert(type + "winner !!!")
+  setTimeout(() => {  
+    alert(type + "winner !!!")
+    Reset();
+   }, 1);
+
 }
 function DeclareGameEnded()
 {
   
-  alert("Fin de partie...")
+  alert("Fin de partie...");
+  Reset();
 }
 
 function displayBoard()
 {
-  console.log("counter : " + counter)
-  console.log("88888888888888888")
-  console.log("BOARD")
-  console.log(board[0][0] + ' ' + board[0][1] + ' ' + board[0][2]);
-  console.log('-----');
-  console.log(board[1][0] + ' ' + board[1][1] + ' ' + board[1][2]);
-  console.log('-----');
-  console.log(board[2][0] + ' ' + board[2][1] + ' ' + board[2][2]);
+  // console.log("counter : " + counter)
+  // console.log("88888888888888888")
+  // console.log("BOARD")
+  // console.log(board[0][0] + ' ' + board[0][1] + ' ' + board[0][2]);
+  // console.log('-----');
+  // console.log(board[1][0] + ' ' + board[1][1] + ' ' + board[1][2]);
+  // console.log('-----');
+  // console.log(board[2][0] + ' ' + board[2][1] + ' ' + board[2][2]);
 }
