@@ -1,106 +1,132 @@
-let counter;
+let counter = 0;
 
-startGame();
+var board = [
+  ['_','_','_'],
+  ['_','_','_'],
+  ['_','_','_'],
+]
 
-//RESET
-var resetButton = document.getElementById('reset');
-resetButton.addEventListener("click", function (item) {
-  Array.from(document.getElementsByClassName("box")).forEach(function (item) {
-    if (item.childNodes[0] != null)
-      {
-        item.removeChild(item.childNodes[0])
-      }
+Array.from(document.getElementsByClassName("box")).forEach(function (item) {
+  item.addEventListener("click", function functionToRemove() {
+    let type = counter % 2 == 0 ? "circle" : "cross"
+    addImage(item, type);
+    this.removeEventListener("click", functionToRemove);
+    winner = checkWinner(type);
   });
-  startGame();
 });
 
-function startGame()
-{
-  Array.from(document.getElementsByClassName("box")).forEach(function (item) {
-    item.classList.remove("cross");
-    item.classList.remove("circle");
-    item.addEventListener("click", function functionToRemove() {
-      let type = counter % 2 == 0 ? "circle" : "cross"
-      addImage(item, type);
-      this.removeEventListener("click", functionToRemove);
-      winner = checkWinner(type);
-    });
-  });
-  counter = 0;
-}
+
+//RESET
+// var resetButton = document.getElementById('reset');
+// resetButton.addEventListener("click", function (item) {
+//   Array.from(document.getElementsByClassName("box")).forEach(function (item) {
+//     if (item.childNodes[0] != null)
+//       {
+//         item.removeChild(item.childNodes[0])
+//       }
+//   });
+//   startGame();
+// });
+
+// function play()
+// {
+//   let type = counter % 2 == 0 ? "circle" : "cross"
+//       addImage(item, type);
+//       this.removeEventListener("click", functionToRemove);
+//       winner = checkWinner(type);
+// }
+
+
+
   
 function addImage(box, type) {
+  var boxNumber = box.id;
+  updateBoard(boxNumber, type)
   let img = document.createElement("img");
   img.src = "images/" + type + ".png";
   img.width = 100;
   img.height = 100;
   box.appendChild(img);
-  box.classList.add(type);
   counter++;
+}
+
+function updateBoard(id, type)
+{
+  var value = GetCharInBoardFromType(type);
+  let ids = GetIndexTabByBoxId(id);
+  board[ids[0]][ids[1]] = value;
+  console.log(board)
+}
+
+function GetCharInBoardFromType(type)
+{
+  return type == 'circle' ? 'o' : 'x';
+}
+
+function GetIndexTabByBoxId(id)
+{
+  return [Math.floor((id - 1) / 3), (id - 1) % 3]
 }
 
 /*CLEAR BOARD */
 
 /*CHECK WINNERS*/
 function checkWinner(type) {
-  let boxes = document.getElementsByClassName("box");
-  let winnerRows = checkWinnerRows(boxes,type);
-  let winnerColumns = checkWinnerColums(boxes,type);
-  let winnerDiagonals = checkWinnerDiagonals(boxes,type)
+  let winnerRows = checkWinnerRows(type);
+  let winnerColumns = checkWinnerColumns(type);
+  let winnerDiagonals = checkWinnerDiagonals(type)
   if (winnerRows || winnerColumns || winnerDiagonals)
     DeclareWinner(type); 
-  let gameEnded = checkGameEnded(boxes);
-  if (gameEnded)
-    DeclareWinner(type);
+  // let gameEnded = checkGameEnded();
+  // if (gameEnded)
+  //   DeclareWinner(type);
 }
 
-function checkGameEnded(boxes)
+function checkGameEnded()
 {
-  let i =0;
-  while (i<9)
-    {
-      
-    }
+  board.forEach(tab => {
+    tab.forEach(value => {
+      if (value != '_')
+        return false
+    });
+  });
+
+  return true;
 }
 
 ///
-function checkWinnerRows(boxes,type)
-{
-  let winner = false;
-  let count = 0;
-  while (winner == false && count < 9)
-  {
-    console.log(CheckTypeOnClassList(type,boxes[count].classList))
-    winner = CheckTypeOnClassList(type,boxes[count].classList) && CheckTypeOnClassList(type,boxes[count+1].classList) && CheckTypeOnClassList(type,boxes[count+2].classList); 
-    count+=3;
+function checkWinnerRows(type) {
+  let potentialWinningChar = GetCharInBoardFromType(type);
+  for (let i = 0; i < board.length; i++) {
+    let lines = board[i];
+    if (lines[0] === potentialWinningChar && lines[1] === potentialWinningChar && lines[2] === potentialWinningChar) {
+      return true;
+    }
   }
-  return winner;
+  return false;
 }
 
-function checkWinnerColums(boxes,type)
-{
-  let winner = false;
-  let count = 0;
-  while (winner == false && count < 3)
-  {
-    winner = CheckTypeOnClassList(type,boxes[count].classList) && CheckTypeOnClassList(type,boxes[count+3].classList) && CheckTypeOnClassList(type,boxes[count+6].classList); 
-    count+=3;
+function checkWinnerColumns(type) {
+  let potentialWinningChar = GetCharInBoardFromType(type);
+  for (let i = 0; i < board.length; i++) {  // itérer de 0 à 2 pour les colonnes
+    if (board[0][i] === potentialWinningChar && board[1][i] === potentialWinningChar && board[2][i] === potentialWinningChar) {
+      return true;
+    }
   }
-  return winner;
+  return false;
 }
 
-function checkWinnerDiagonals(boxes,type)
+
+function checkWinnerDiagonals(type)
 {
-  let firstDiagonal = CheckTypeOnClassList(type,boxes[0].classList) && CheckTypeOnClassList(type,boxes[4].classList) && CheckTypeOnClassList(type,boxes[8].classList);
-  let secondDiagonal = CheckTypeOnClassList(type,boxes[2].classList) && CheckTypeOnClassList(type,boxes[4].classList) && CheckTypeOnClassList(type,boxes[6].classList);
+  let potentialWinningChar = GetCharInBoardFromType(type);
+  let firstDiagonal = board[0][0] == potentialWinningChar &&  board[1][1] == potentialWinningChar &&  board[2][2] == potentialWinningChar;
+  let secondDiagonal = board[0][2] == potentialWinningChar &&  board[1][1] == potentialWinningChar &&  board[2][0] == potentialWinningChar;
   return firstDiagonal || secondDiagonal;
   
 }
 
-function CheckTypeOnClassList(type, classList)
-{
-  return classList.contains(type);
-}
+
 
 function DeclareWinner(type)
 {
